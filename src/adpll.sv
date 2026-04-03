@@ -138,7 +138,25 @@ module adpll #(
 
     // ---------------------------------------------------------
     // Bang-bang phase detector (for fine tracking near lock)
+    //
+    // fb_clk is combinational from div_count (dco_clk domain).
+    // A 2-stage synchronizer prevents metastability when fb_clk
+    // transitions near a ref_clk edge. The synchronizer adds
+    // ~2 ref_clk cycles of latency, which shifts the steady-state
+    // phase offset but does not affect locking ability.
     // ---------------------------------------------------------
+    reg fb_sync_bb1, fb_sync_bb2;
+
+    always @(posedge ref_clk or negedge rst_n) begin
+        if (!rst_n) begin
+            fb_sync_bb1 <= 1'b0;
+            fb_sync_bb2 <= 1'b0;
+        end else begin
+            fb_sync_bb1 <= fb_clk;
+            fb_sync_bb2 <= fb_sync_bb1;
+        end
+    end
+
     reg phase_up, prev_up;
 
     always @(posedge ref_clk or negedge rst_n) begin
@@ -147,7 +165,7 @@ module adpll #(
             prev_up  <= 1'b0;
         end else begin
             prev_up  <= phase_up;
-            phase_up <= ~fb_clk;
+            phase_up <= ~fb_sync_bb2;
         end
     end
 
@@ -177,18 +195,36 @@ module adpll #(
 
     // ---------------------------------------------------------
     // Lock detector
+    //
+    // With coarse DCO frequency steps, the bang-bang phase_up
+    // won't alternate every cycle — the phase drifts slowly
+    // through the fb_clk waveform. Instead, detect lock by
+    // checking that ctrl is stable: if freq_acquired is set
+    // and ctrl stays within ±1 of a reference value over a
+    // window, declare lock.
     // ---------------------------------------------------------
-    reg [3:0] lock_cnt;
+    reg [3:0]              lock_cnt;
+    reg [CTRL_WIDTH-1:0]   ctrl_ref;      // reference ctrl value for stability check
+    wire                   ctrl_stable;
+
+    assign ctrl_stable = (ctrl + 2'd3 >= ctrl_ref) && (ctrl <= ctrl_ref + 2'd3);
 
     always @(posedge ref_clk or negedge rst_n) begin
-        if (!rst_n)
+        if (!rst_n) begin
             lock_cnt <= '0;
-        else if (freq_close && phase_up != prev_up) begin
-            if (lock_cnt < 4'hF)
-                lock_cnt <= lock_cnt + 1'b1;
+            ctrl_ref <= CTRL_MID;
+        end else if (freq_acquired) begin
+            if (ctrl_stable) begin
+                if (lock_cnt < 4'hF)
+                    lock_cnt <= lock_cnt + 1'b1;
+            end else begin
+                // ctrl moved outside ±1 — reset and update reference
+                lock_cnt <= '0;
+                ctrl_ref <= ctrl;
+            end
         end else begin
-            if (lock_cnt > '0)
-                lock_cnt <= lock_cnt - 1'b1;
+            lock_cnt <= '0;
+            ctrl_ref <= ctrl;
         end
     end
 
