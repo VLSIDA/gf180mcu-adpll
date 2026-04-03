@@ -59,6 +59,7 @@
               # Simulation
               iverilog
               verilator
+              libngspice
 
               # Waveform viewing
               gtkwave
