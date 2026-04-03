@@ -20,8 +20,10 @@ module ring_dco #(
     localparam NUM_TAPS = 1 << CTRL_WIDTH;
 
     // Approximate gf180mcu 5V TT corner gate delays (in ps)
-    localparam integer NAND_DELAY_PS = 50;
-    localparam integer INV_DELAY_PS  = 30;
+    // Includes mux tap loading (~5 fF per node, fanout=2)
+    // Measured via ngspice: ~110 ps/stage average
+    localparam integer NAND_DELAY_PS = 115;
+    localparam integer INV_DELAY_PS  = 110;
 
     // Compute number of inverter stages from ctrl:
     //   ctrl = NUM_TAPS-1  →  2 inverters  (3 stages total with NAND)

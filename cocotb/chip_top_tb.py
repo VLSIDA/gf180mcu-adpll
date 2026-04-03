@@ -75,10 +75,10 @@ async def test_adpll(dut):
     # Reference clock is 25 MHz (40 ns period)
     ref_period_ns = 40.0
 
-    # With ~30ps inverter delays, DCO frequency range is ~32 MHz to ~4.5 GHz.
-    # DCO period formula: 2 × (50 + (256 - ctrl) × 2 × 30) ps
+    # With ~110ps inverter delays (loaded, from ngspice), DCO range is ~9-1500 MHz.
+    # DCO period formula: 2 × (115 + (256 - ctrl) × 2 × 110) ps
     # For the PLL to lock at ref_clk/N, the DCO period should be ref_period/N.
-    # N=4: target 10 ns → ctrl ≈ 173
+    # N=4: target 10 ns → ctrl ≈ 233
     n_val = 4
 
     # Configure ADPLL: input_PAD[7:0] = N value, input_PAD[8] = enable
@@ -111,7 +111,7 @@ async def test_adpll(dut):
 
     # Compute expected period from actual ctrl value
     ctrl_val = int(ctrl.value)
-    computed_period_ns = 2 * (0.050 + (256 - ctrl_val) * 2 * 0.030)
+    computed_period_ns = 2 * (0.115 + (256 - ctrl_val) * 2 * 0.110)
     cocotb.log.info(
         f"PLL output period: {pll_period:.3f} ns "
         f"(ideal for N={n_val}: {expected_period:.2f} ns, "
@@ -123,7 +123,12 @@ async def test_adpll(dut):
     assert 0.1 < pll_period < 100.0, \
         f"PLL period {pll_period:.3f} ns outside reasonable range"
 
-    # Verify measured period roughly matches what ctrl predicts
+    # Verify measured period roughly matches what ctrl predicts.
+    # Note: the output frequency won't exactly equal N × ref_clk because the
+    # DCO has discrete frequency steps (each ctrl step changes ring length by
+    # 2 inverters ≈ 220 ps of period). The bang-bang loop dithers between two
+    # adjacent ctrl values, so the *average* frequency is close to the target,
+    # but any single measurement lands on one of the two discrete steps.
     assert abs(pll_period - computed_period_ns) / computed_period_ns < 0.1, \
         f"Measured period {pll_period:.3f} ns doesn't match ctrl-predicted {computed_period_ns:.3f} ns"
 
