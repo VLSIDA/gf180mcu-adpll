@@ -161,6 +161,7 @@ async def test_adpll_mixed_signal(dut):
         f".include {pdk_base / 'libs.tech/ngspice/design.ngspice'}",
         f".include {pdk_base / 'libs.tech/ngspice/sm141064.ngspice'}",
         f".include {pdk_base / 'libs.ref' / scl / 'spice' / f'{scl}.spice'}",
+        ".option rshunt=1e12",  # convergence aid for large circuits
     ]
 
     # Define the ring_dco analog block
@@ -177,26 +178,27 @@ async def test_adpll_mixed_signal(dut):
         },
         vdd=vdd,
         vss=vss,
-        tran_step="0.01n",
+        tran_step="0.1n",
         extra_lines=extra_lines,
         simulator="ngspice",
     )
 
-    # Total simulation duration in ns
-    sim_duration_ns = 50_000
+    # Total simulation duration in ns (500 ref cycles × 40ns + margin)
+    sim_duration_ns = 25_000
 
     # Create the mixed-signal bridge
     ngspice_lib = os.getenv("NGSPICE_LIB", None)
     bridge = MixedSignalBridge(
         dut,
         [dco_block],
-        max_sync_interval_ns=1.0,
+        max_sync_interval_ns=5.0,
         simulator_lib=ngspice_lib,
     )
 
-    # Initialize the chip
+    # Initialize the chip: reset first so ctrl is defined before SPICE starts
     await set_defaults(dut)
     await start_clock(dut.clk_PAD)
+    await reset(dut.rst_n_PAD)
 
     # Configure ADPLL: N=4, enable=1
     n_val = 4
@@ -211,9 +213,6 @@ async def test_adpll_mixed_signal(dut):
         analog_vcd=str(proj_path / "sim_build" / "analog.vcd"),
         vcd_nodes=["ring_0", "fb"],
     )
-
-    # Reset after bridge is running so SPICE sees the enable transitions
-    await reset(dut.rst_n_PAD)
 
     # Wait for PLL to attempt locking — needs more cycles with wider control range
     await ClockCycles(dut.clk_PAD, 500)

@@ -57,6 +57,46 @@ make librelane-openroad  # View layout in OpenROAD GUI
 make librelane-klayout   # View layout in KLayout GUI
 ```
 
+## Installation & Setup
+
+### Nix Dev Shell
+
+The `flake.nix` provides all tools: LibreLane 3.0, Icarus Verilog, Verilator, ngspice/libngspice, GTKWave, Surfer, cocotb, etc.
+
+```bash
+nix develop
+make clone-pdk    # clone GF180MCU PDK into ./gf180mcu/
+```
+
+### Mixed-Signal (AMS) Simulation Dependencies
+
+AMS simulation runs the ring oscillator DCO in SPICE (ngspice) while the rest runs in Verilog, using `cocotbext-ams` as the bridge.
+
+**cocotbext-ams**: Installed automatically on first `make sim-ams` into `cocotb/.ams-deps/`, or manually:
+```bash
+pip install --target cocotb/.ams-deps --no-deps cocotbext-ams
+```
+Source: https://github.com/VLSIDA/cocotbext-ams
+
+**libngspice**: The Nix dev shell provides `libngspice` and the Makefile auto-detects it from the Nix store. Without Nix, install from your system package manager and set `NGSPICE_LIB`:
+```bash
+# Debian/Ubuntu
+sudo apt install libngspice0-dev
+export NGSPICE_LIB=/usr/lib/x86_64-linux-gnu/libngspice.so
+
+# macOS (Homebrew)
+brew install ngspice
+export NGSPICE_LIB=$(brew --prefix ngspice)/lib/libngspice.dylib
+
+# Or pass directly
+make sim-ams NGSPICE_LIB=/path/to/libngspice.so
+```
+
+### PDK Setup
+
+- **Local clone** (default): `make clone-pdk` → `./gf180mcu/`
+- **CIEL cache**: Set `PDK_ROOT=~/.ciel` to use `~/.ciel/gf180mcuD/`
+
 ## Development Notes
 
 - The ring_dco module is split: `src/ring_dco.sv` instantiates actual GF180 standard cells for synthesis, while `cocotb/ring_dco_behavioral.sv` uses Verilog primitives with `#delay` for RTL simulation.

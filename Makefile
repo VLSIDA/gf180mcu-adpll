@@ -74,7 +74,7 @@ sim-gl: ## Run gate-level simulation with cocotb (after copy-final)
 	cd cocotb; GL=1 PDK_ROOT=${PDK_ROOT} PDK=${PDK} SLOT=${SLOT} python3 chip_top_tb.py
 .PHONY: sim-gl
 
-NGSPICE_LIB ?= $(shell find /nix/store -maxdepth 3 -name 'libngspice.so' -path '*/libngspice*/lib/*' 2>/dev/null | head -1)
+NGSPICE_LIB ?= $(shell find /nix/store -maxdepth 3 -name 'libngspice.so' 2>/dev/null | head -1)
 
 sim-ams: cocotb/.ams-deps ## Run mixed-signal simulation (ring oscillator in SPICE)
 	cd cocotb; AMS=1 PYTHONPATH=.ams-deps NGSPICE_LIB=${NGSPICE_LIB} PDK_ROOT=${PDK_ROOT} PDK=${PDK} SLOT=${SLOT} python3 chip_top_tb.py
