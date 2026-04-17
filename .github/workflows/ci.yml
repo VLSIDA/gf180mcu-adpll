@@ -62,6 +62,8 @@ jobs:
           remove-codeql: "true"
           remove-docker-images: "true"
       - uses: actions/checkout@v4
+        with:
+          submodules: true
       - name: Setup Nix
         uses: ./.github/actions/setup_nix
         with:
@@ -79,6 +81,7 @@ jobs:
       - name: Clone the PDK
         run: |
           make clone-pdk
+          make install-3v3-scl
       - name: Run RTL simulation
         run: |
           nix develop --command make sim
