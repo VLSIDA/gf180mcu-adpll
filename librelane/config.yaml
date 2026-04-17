@@ -29,9 +29,6 @@ VERILOG_FILES:
 - dir::../src/chip_top.sv
 - dir::../src/chip_core.sv
 
-# Use the 3.3V standard cell library
-STD_CELL_LIBRARY: gf180mcu_as_sc_mcu7t3v3
-
 # Enable plugin for better SystemVerilog support
 # USE_SLANG: True
 # SLANG_ARGUMENTS: ['--keep-hierarchy']
