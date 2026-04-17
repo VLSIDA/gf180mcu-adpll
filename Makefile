@@ -38,6 +38,13 @@ clone-pdk: ## Clone the GF180MCU PDK repository
 	git clone https://github.com/wafer-space/gf180mcu.git $(MAKEFILE_DIR)/gf180mcu --depth 1 --branch ${PDK_TAG}
 .PHONY: clone-pdk
 
+install-3v3-scl: ## Install the 3.3V standard cell library into the PDK
+	git submodule update --init libs/gf180mcu_as_sc_mcu7t3v3
+	cp -r $(MAKEFILE_DIR)/libs/gf180mcu_as_sc_mcu7t3v3/pdk/libs.ref/gf180mcu_as_sc_mcu7t3v3 $(PDK_ROOT)/$(PDK)/libs.ref/
+	cp -r $(MAKEFILE_DIR)/libs/gf180mcu_as_sc_mcu7t3v3/pdk/libs.tech/librelane $(PDK_ROOT)/$(PDK)/libs.tech/
+	cp -r $(MAKEFILE_DIR)/libs/gf180mcu_as_sc_mcu7t3v3/pdk/libs.tech/magic $(PDK_ROOT)/$(PDK)/libs.tech/
+.PHONY: install-3v3-scl
+
 librelane: ## Run LibreLane flow (synthesis, PnR, verification)
 	librelane librelane/slots/slot_${SLOT}.yaml librelane/config.yaml --save-views-to $(MAKEFILE_DIR)/final --pdk ${PDK} --pdk-root ${PDK_ROOT} --manual-pdk
 .PHONY: librelane
