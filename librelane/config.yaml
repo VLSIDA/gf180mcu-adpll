@@ -144,6 +144,10 @@ KLAYOUT_FILLER_OPTIONS:
 # Because we have multiple power pads for one power domain
 MAGIC_EXT_UNIQUE: notopports
 
+# Walk into macro netlists during chip-level LVS so the adder's
+# internal gates are checked end-to-end (not just pin-level).
+LVS_INCLUDE_MARCO_NETLISTS: True
+
 MACROS:
   gf180mcu_ws_ip__id:
     gds:
@@ -182,6 +186,10 @@ MACROS:
       - dir::adder/macro/gds/adder.gds
     lef:
       - dir::adder/macro/lef/adder.lef
+    # The RTL source serves as the blackbox header so Verilator and
+    # synthesis pick up the correct interface (incl. USE_POWER_PINS).
+    vh:
+      - dir::../src/adder.sv
     nl:
       - dir::adder/macro/nl/adder.nl.v
     spef:
@@ -200,16 +208,16 @@ MACROS:
         - dir::adder/macro/lib/nom_ss_125C_4v50/adder__nom_ss_125C_4v50.lib
     instances:
       i_chip_core.u_adder_0:
-        location: [490, 500]
+        location: [500, 500]
         orientation: N
       i_chip_core.u_adder_1:
-        location: [700, 500]
+        location: [680, 500]
         orientation: N
       i_chip_core.u_adder_2:
-        location: [910, 500]
+        location: [860, 500]
         orientation: N
       i_chip_core.u_adder_3:
-        location: [1120, 500]
+        location: [1040, 500]
         orientation: N
 
 PDN_MACRO_CONNECTIONS:

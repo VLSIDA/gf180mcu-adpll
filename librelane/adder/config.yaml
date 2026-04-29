@@ -15,10 +15,13 @@ VDD_NETS:
 GND_NETS:
   - VSS
 
-# Floorplan: a small, fixed die for an 8-bit adder
+# Floorplan: oversized for the 8-bit adder so the parent's PDN
+# stripes have room to cross. Same technique used for the SRAM
+# macros: no boundary ring, parent stamps extra stripes over the
+# macro and connects to internal M3 horizontal pins via M4-M3 vias.
 FP_SIZING: absolute
-DIE_AREA: [0, 0, 100, 100]
-CORE_AREA: [10, 10, 90, 90]
+DIE_AREA: [0, 0, 150, 150]
+CORE_AREA: [10, 10, 140, 140]
 
 # SDC for combinational STA (virtual clock + I/O delays)
 PNR_SDC_FILE: dir::adder.sdc
@@ -27,12 +30,13 @@ FALLBACK_SDC_FILE: dir::adder.sdc
 
 PL_TARGET_DENSITY_PCT: 50
 
-# PDN: a single ring around the small block
-PDN_CORE_RING: True
-PDN_CORE_RING_VWIDTH: 3
-PDN_CORE_RING_HWIDTH: 3
-PDN_CORE_VERTICAL_LAYER: Metal2
-PDN_CORE_HORIZONTAL_LAYER: Metal3
+# PDN: no boundary ring. Internal stripes are M2 vertical / M3
+# horizontal so the parent's M4 PDN can stitch down via M4-M3
+# vias to the M3 pins (same pattern as the foundry SRAM macros).
+PDN_CORE_RING: False
+PDN_ENABLE_PINS: True
+PDN_VERTICAL_LAYER: Metal2
+PDN_HORIZONTAL_LAYER: Metal3
 PDN_VWIDTH: 2
 PDN_HWIDTH: 2
 PDN_VPITCH: 30

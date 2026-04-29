@@ -193,3 +193,38 @@ add_pdn_connect \
     -grid macro \
     -layers "$::env(PDN_VERTICAL_LAYER) $::env(PDN_HORIZONTAL_LAYER)"
 
+# Adder macros (same technique as the SRAM macros above): the block
+# exposes M3 horizontal pins inside its footprint (no boundary ring).
+# We add extra parent M4 vertical stripes that cross every adder, and
+# the M4-M3 connect rule creates vias wherever they overlap the M3
+# pins. This pattern works for any macro with internal M3 pins,
+# regardless of the macro's size or boundary.
+define_pdn_grid \
+    -macro \
+    -instances {i_chip_core.u_adder_0 i_chip_core.u_adder_1 i_chip_core.u_adder_2 i_chip_core.u_adder_3} \
+    -name adder_macros \
+    -starts_with POWER \
+    -halo "$::env(PDN_HORIZONTAL_HALO) $::env(PDN_VERTICAL_HALO)"
+
+add_pdn_connect \
+    -grid adder_macros \
+    -layers "$::env(PDN_VERTICAL_LAYER) $::env(PDN_HORIZONTAL_LAYER)"
+
+# Connect the parent's M4 vertical stripes to the macro's M3
+# horizontal pins.
+add_pdn_connect \
+    -grid adder_macros \
+    -layers "$::env(PDN_VERTICAL_LAYER) Metal3"
+
+# Stamp extra parent M4 stripes over each adder. Macro is 150 um
+# wide; pitch of 30 with 5 straps gives ~120 um of coverage.
+add_pdn_stripe \
+    -grid adder_macros \
+    -layer Metal4 \
+    -width 2.0 \
+    -offset 15 \
+    -spacing 1.0 \
+    -pitch 30 \
+    -starts_with POWER \
+    -number_of_straps 5
+
