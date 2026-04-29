@@ -1,0 +1,42 @@
+meta:
+  version: 3
+  flow: Classic
+
+DESIGN_NAME: adder
+VERILOG_FILES:
+  - dir::../../src/adder.sv
+
+# No clock - the adder is purely combinational
+CLOCK_PORT: null
+
+# Power / ground nets
+VDD_NETS:
+  - VDD
+GND_NETS:
+  - VSS
+
+# Floorplan: a small, fixed die for an 8-bit adder
+FP_SIZING: absolute
+DIE_AREA: [0, 0, 100, 100]
+CORE_AREA: [10, 10, 90, 90]
+
+# SDC for combinational STA (virtual clock + I/O delays)
+PNR_SDC_FILE: dir::adder.sdc
+SIGNOFF_SDC_FILE: dir::adder.sdc
+FALLBACK_SDC_FILE: dir::adder.sdc
+
+PL_TARGET_DENSITY_PCT: 50
+
+# PDN: a single ring around the small block
+PDN_CORE_RING: True
+PDN_CORE_RING_VWIDTH: 3
+PDN_CORE_RING_HWIDTH: 3
+PDN_CORE_VERTICAL_LAYER: Metal2
+PDN_CORE_HORIZONTAL_LAYER: Metal3
+PDN_VWIDTH: 2
+PDN_HWIDTH: 2
+PDN_VPITCH: 30
+PDN_HPITCH: 30
+
+# Don't error on DRC for the small block during development
+ERROR_ON_MAGIC_DRC: False

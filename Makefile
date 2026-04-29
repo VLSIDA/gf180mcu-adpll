@@ -42,6 +42,10 @@ librelane: ## Run LibreLane flow (synthesis, PnR, verification)
 	librelane librelane/slots/slot_${SLOT}.yaml librelane/config.yaml --save-views-to $(MAKEFILE_DIR)/final --pdk ${PDK} --pdk-root ${PDK_ROOT} --manual-pdk
 .PHONY: librelane
 
+harden-adder: ## Harden the adder block (run before top-level librelane)
+	librelane librelane/adder/config.yaml --save-views-to $(MAKEFILE_DIR)/librelane/adder/macro --pdk ${PDK} --pdk-root ${PDK_ROOT} --manual-pdk
+.PHONY: harden-adder
+
 librelane-nodrc: ## Run LibreLane flow without DRC checks
 	librelane librelane/slots/slot_${SLOT}.yaml librelane/config.yaml --save-views-to $(MAKEFILE_DIR)/final --pdk ${PDK} --pdk-root ${PDK_ROOT} --manual-pdk --skip KLayout.Antenna --skip KLayout.DRC --skip Magic.DRC
 .PHONY: librelane-nodrc

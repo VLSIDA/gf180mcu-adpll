@@ -50,29 +50,63 @@ module chip_core #(
     assign _unused = &bidir_in;
 
     // 32-bit counter. Its next value is computed by chaining four
-    // 8-bit `adder` instances via cin/cout to form a 32-bit
+    // hardened 8-bit `adder` macros via cin/cout to form a 32-bit
     // ripple-carry incrementer (cin of the lowest adder = 1).
-    localparam int ADDER_WIDTH = 8;
-    localparam int N_ADDERS    = 4;
-    localparam int CNT_WIDTH   = ADDER_WIDTH * N_ADDERS;
+    localparam int CNT_WIDTH = 32;
 
     logic [CNT_WIDTH-1:0] count;
     wire  [CNT_WIDTH-1:0] next_count;
-    wire  [N_ADDERS:0]    carry;
+    wire  [4:0]           carry;
 
     assign carry[0] = 1'b1;
 
-    generate
-        for (genvar i = 0; i < N_ADDERS; i++) begin : g_adders
-            adder #(.WIDTH(ADDER_WIDTH)) u_adder (
-                .a    (count     [(i+1)*ADDER_WIDTH-1 -: ADDER_WIDTH]),
-                .b    ({ADDER_WIDTH{1'b0}}),
-                .cin  (carry[i]),
-                .sum  (next_count[(i+1)*ADDER_WIDTH-1 -: ADDER_WIDTH]),
-                .cout (carry[i+1])
-            );
-        end
-    endgenerate
+    adder u_adder_0 (
+        `ifdef USE_POWER_PINS
+        .VDD  (VDD),
+        .VSS  (VSS),
+        `endif
+        .a    (count[7:0]),
+        .b    (8'b0),
+        .cin  (carry[0]),
+        .sum  (next_count[7:0]),
+        .cout (carry[1])
+    );
+
+    adder u_adder_1 (
+        `ifdef USE_POWER_PINS
+        .VDD  (VDD),
+        .VSS  (VSS),
+        `endif
+        .a    (count[15:8]),
+        .b    (8'b0),
+        .cin  (carry[1]),
+        .sum  (next_count[15:8]),
+        .cout (carry[2])
+    );
+
+    adder u_adder_2 (
+        `ifdef USE_POWER_PINS
+        .VDD  (VDD),
+        .VSS  (VSS),
+        `endif
+        .a    (count[23:16]),
+        .b    (8'b0),
+        .cin  (carry[2]),
+        .sum  (next_count[23:16]),
+        .cout (carry[3])
+    );
+
+    adder u_adder_3 (
+        `ifdef USE_POWER_PINS
+        .VDD  (VDD),
+        .VSS  (VSS),
+        `endif
+        .a    (count[31:24]),
+        .b    (8'b0),
+        .cin  (carry[3]),
+        .sum  (next_count[31:24]),
+        .cout (carry[4])
+    );
 
     always_ff @(posedge clk) begin
         if (!rst_n) begin

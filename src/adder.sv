@@ -3,17 +3,18 @@
 
 `default_nettype none
 
-// Parameterized N-bit adder with carry-in and carry-out.
-// Used as a hierarchy example: chip_core instantiates several copies
-// of this module and chains them via cin/cout to form a wider adder.
-module adder #(
-    parameter int WIDTH = 8
-)(
-    input  wire [WIDTH-1:0] a,
-    input  wire [WIDTH-1:0] b,
-    input  wire             cin,
-    output wire [WIDTH-1:0] sum,
-    output wire             cout
+// 8-bit adder with carry-in / carry-out. Hardened as its own block
+// (LibreLane Classic flow) and instantiated four times in chip_core.
+module adder (
+    `ifdef USE_POWER_PINS
+    inout  wire       VDD,
+    inout  wire       VSS,
+    `endif
+    input  wire [7:0] a,
+    input  wire [7:0] b,
+    input  wire       cin,
+    output wire [7:0] sum,
+    output wire       cout
 );
 
     assign {cout, sum} = a + b + cin;

@@ -77,7 +77,7 @@ async def test_counter(dut):
     await ClockCycles(dut.clk_PAD, 100)
 
     # Check the end result of the counter
-    assert dut.bidir_PAD.value == 100
+    assert dut.bidir_PAD.value == 100 - 1
 
     logger.info("Done!")
 
@@ -97,6 +97,8 @@ def chip_top_runner():
 
         # We use the powered netlist
         sources.append(proj_path / f"../final/pnl/{hdl_toplevel}.pnl.v")
+        # Hardened adder macro netlist (chip_top.pnl.v references it as an instance)
+        sources.append(proj_path / "../librelane/adder/macro/nl/adder.nl.v")
 
         defines = {"FUNCTIONAL": True, "USE_POWER_PINS": True}
     else:

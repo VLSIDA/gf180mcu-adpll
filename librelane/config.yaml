@@ -28,14 +28,11 @@ DESIGN_NAME: chip_top
 VERILOG_FILES:
 - dir::../src/chip_top.sv
 - dir::../src/chip_core.sv
-- dir::../src/adder.sv
 
-# Slang preserves hierarchy through the front-end; SYNTH_KEEP_HIERARCHY_MODULES
-# below tells Yosys to skip flattening for the listed module(s).
+# Slang preserves hierarchy through the front-end. The adder is a hardened
+# macro (see librelane/adder/) so Yosys treats it as a leaf cell.
 USE_SLANG: True
 SLANG_ARGUMENTS: ['--keep-hierarchy']
-SYNTH_KEEP_HIERARCHY_MODULES:
-- adder
 
 # Slightly smaller file sizes
 PRIMARY_GDSII_STREAMOUT_TOOL: klayout
@@ -177,6 +174,49 @@ MACROS:
       wafer_space_logo:
         location: ["expr::$DIE_AREA[2] + -169.25", "expr::$DIE_AREA[3] + -169.25"]
         orientation: N
+
+  # Hardened block produced by `make harden-adder` (saves views into
+  # librelane/adder/macro/ via --save-views-to).
+  adder:
+    gds:
+      - dir::adder/macro/gds/adder.gds
+    lef:
+      - dir::adder/macro/lef/adder.lef
+    nl:
+      - dir::adder/macro/nl/adder.nl.v
+    spef:
+      "min_*":
+        - dir::adder/macro/spef/min/adder.min.spef
+      "nom_*":
+        - dir::adder/macro/spef/nom/adder.nom.spef
+      "max_*":
+        - dir::adder/macro/spef/max/adder.max.spef
+    lib:
+      "*_tt_025C_5v00":
+        - dir::adder/macro/lib/nom_tt_025C_5v00/adder__nom_tt_025C_5v00.lib
+      "*_ff_n40C_5v50":
+        - dir::adder/macro/lib/nom_ff_n40C_5v50/adder__nom_ff_n40C_5v50.lib
+      "*_ss_125C_4v50":
+        - dir::adder/macro/lib/nom_ss_125C_4v50/adder__nom_ss_125C_4v50.lib
+    instances:
+      i_chip_core.u_adder_0:
+        location: [490, 500]
+        orientation: N
+      i_chip_core.u_adder_1:
+        location: [700, 500]
+        orientation: N
+      i_chip_core.u_adder_2:
+        location: [910, 500]
+        orientation: N
+      i_chip_core.u_adder_3:
+        location: [1120, 500]
+        orientation: N
+
+PDN_MACRO_CONNECTIONS:
+- "i_chip_core.u_adder_0 VDD VSS VDD VSS"
+- "i_chip_core.u_adder_1 VDD VSS VDD VSS"
+- "i_chip_core.u_adder_2 VDD VSS VDD VSS"
+- "i_chip_core.u_adder_3 VDD VSS VDD VSS"
 
 # Halo size around macros while cutting rows.
 # Workaround for: https://github.com/The-OpenROAD-Project/OpenROAD/issues/8868
