@@ -49,53 +49,40 @@ module chip_core #(
     logic _unused;
     assign _unused = &bidir_in;
 
-    logic [NUM_BIDIR_PADS-1:0] count;
+    // 32-bit counter. Its next value is computed by chaining four
+    // 8-bit `adder` instances via cin/cout to form a 32-bit
+    // ripple-carry incrementer (cin of the lowest adder = 1).
+    localparam int ADDER_WIDTH = 8;
+    localparam int N_ADDERS    = 4;
+    localparam int CNT_WIDTH   = ADDER_WIDTH * N_ADDERS;
+
+    logic [CNT_WIDTH-1:0] count;
+    wire  [CNT_WIDTH-1:0] next_count;
+    wire  [N_ADDERS:0]    carry;
+
+    assign carry[0] = 1'b1;
+
+    generate
+        for (genvar i = 0; i < N_ADDERS; i++) begin : g_adders
+            adder #(.WIDTH(ADDER_WIDTH)) u_adder (
+                .a    (count     [(i+1)*ADDER_WIDTH-1 -: ADDER_WIDTH]),
+                .b    ({ADDER_WIDTH{1'b0}}),
+                .cin  (carry[i]),
+                .sum  (next_count[(i+1)*ADDER_WIDTH-1 -: ADDER_WIDTH]),
+                .cout (carry[i+1])
+            );
+        end
+    endgenerate
 
     always_ff @(posedge clk) begin
         if (!rst_n) begin
             count <= '0;
-        end else begin
-            if (&input_in) begin
-                count <= count + 1;
-            end
+        end else if (&input_in) begin
+            count <= next_count;
         end
     end
 
-    logic [7:0] sram_0_out;
-
-    gf180mcu_fd_ip_sram__sram512x8m8wm1 sram_0 (
-        `ifdef USE_POWER_PINS
-        .VDD  (VDD),
-        .VSS  (VSS),
-        `endif
-
-        .CLK  (clk),
-        .CEN  (1'b1),
-        .GWEN (1'b0),
-        .WEN  (8'b0),
-        .A    ('0),
-        .D    ('0),
-        .Q    (sram_0_out)
-    );
-
-    logic [7:0] sram_1_out;
-
-    gf180mcu_fd_ip_sram__sram512x8m8wm1 sram_1 (
-        `ifdef USE_POWER_PINS
-        .VDD  (VDD),
-        .VSS  (VSS),
-        `endif
-
-        .CLK  (clk),
-        .CEN  (1'b1),
-        .GWEN (1'b0),
-        .WEN  (8'b0),
-        .A    ('0),
-        .D    ('0),
-        .Q    (sram_1_out)
-    );
-
-    assign bidir_out = count ^ {24'd0, sram_0_out, sram_1_out};
+    assign bidir_out = {{(NUM_BIDIR_PADS - CNT_WIDTH){1'b0}}, count};
 
 endmodule
 
