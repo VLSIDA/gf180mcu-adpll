@@ -85,6 +85,10 @@ jobs:
           # cocotb also returns 0 upon failure
           # check the simulation results
           ! grep failure cocotb/sim_build/results.xml
+      - name: Harden the Adder Block
+        if: success() || failure()
+        run: |
+          nix develop --command make harden-adder
       - name: Implement the Chip
         if: success() || failure()
         run: |
