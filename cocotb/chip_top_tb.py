@@ -97,8 +97,9 @@ def chip_top_runner():
 
         # We use the powered netlist
         sources.append(proj_path / f"../final/pnl/{hdl_toplevel}.pnl.v")
-        # Hardened adder macro netlist (chip_top.pnl.v references it as an instance)
-        sources.append(proj_path / "../librelane/adder/macro/nl/adder.nl.v")
+        # Hardened adder macro powered netlist (chip_top.pnl.v references
+        # it with VDD/VSS, so use pnl.v rather than nl.v).
+        sources.append(proj_path / "../librelane/adder/macro/pnl/adder.pnl.v")
 
         defines = {"FUNCTIONAL": True, "USE_POWER_PINS": True}
     else:
