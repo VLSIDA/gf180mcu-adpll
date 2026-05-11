@@ -6,16 +6,17 @@
 module chip_core #(
     parameter NUM_INPUT_PADS,
     parameter NUM_BIDIR_PADS,
-    parameter NUM_ANALOG_PADS
+    parameter NUM_ANALOG_PADS,
+    parameter NUM_AREA_PADS
     )(
     `ifdef USE_POWER_PINS
     inout  wire VDD,
     inout  wire VSS,
     `endif
-    
+
     input  wire clk,       // clock
     input  wire rst_n,     // reset (active low)
-    
+
     input  wire [NUM_INPUT_PADS-1:0] input_in,   // Input value
     output wire [NUM_INPUT_PADS-1:0] input_pu,   // Pull-up
     output wire [NUM_INPUT_PADS-1:0] input_pd,   // Pull-down
@@ -29,7 +30,13 @@ module chip_core #(
     output wire [NUM_BIDIR_PADS-1:0] bidir_pu,   // Pull-up
     output wire [NUM_BIDIR_PADS-1:0] bidir_pd,   // Pull-down
 
-    inout  wire [NUM_ANALOG_PADS-1:0] analog  // Analog
+    inout  wire [NUM_ANALOG_PADS-1:0] analog,    // Analog
+
+    // Area (chip-on-chip wire-bond) pads.  Each bit is just a piece of
+    // metal — the cell has no driver and no receiver — so drive it from
+    // here to use it as an output, or leave it 1'bz and sample it to
+    // use as an input.
+    inout  wire [NUM_AREA_PADS-1:0]   area
 );
 
     // See here for usage: https://gf180mcu-pdk.readthedocs.io/en/latest/IPs/IO/gf180mcu_fd_io/digital.html
@@ -96,6 +103,12 @@ module chip_core #(
     );
 
     assign bidir_out = count ^ {24'd0, sram_0_out, sram_1_out};
+
+    // Demo wiring for the area pads: drive them with the low bits of
+    // the counter so synthesis keeps them and you can see them toggling
+    // in simulation.  Change to `1'bz` (and sample `area` instead) to
+    // use them as inputs from a stacked die.
+    assign area = count[NUM_AREA_PADS-1:0];
 
 endmodule
 

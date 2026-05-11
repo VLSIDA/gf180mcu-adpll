@@ -114,6 +114,7 @@ def chip_top_runner():
         # Custom IP
         proj_path / "../ip/gf180mcu_ws_ip__id/vh/gf180mcu_ws_ip__id.v",
         proj_path / "../ip/gf180mcu_ws_ip__logo/vh/gf180mcu_ws_ip__logo.v",
+        proj_path / "../ip/gf180mcu_ws_io__area/vh/gf180mcu_ws_io__area.v",
     ]
 
     build_args = []

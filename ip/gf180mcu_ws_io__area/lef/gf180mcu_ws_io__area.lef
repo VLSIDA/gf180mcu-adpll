@@ -1,0 +1,36 @@
+VERSION 5.7 ;
+  NOWIREEXTENSIONATPIN ON ;
+  DIVIDERCHAR "/" ;
+  BUSBITCHARS "[]" ;
+# Area IO pad (a.k.a. circuit-under-pad bondpad).
+# 75x75 um square cell containing only the top-metal bondpad and the
+# passivation (glass) opening.  No transistors, no ESD, no driver.  The
+# signal pin is exposed on Metal5 only so that Metal1..Metal4 are free
+# for routing under the pad.
+MACRO gf180mcu_ws_io__area
+  CLASS BLOCK ;
+  FOREIGN gf180mcu_ws_io__area ;
+  ORIGIN 0.000 0.000 ;
+  SIZE 75.000 BY 75.000 ;
+  SYMMETRY X Y R90 ;
+  PIN PAD
+    DIRECTION INOUT ;
+    USE SIGNAL ;
+    ANTENNADIFFAREA 4225.000000 ;
+    PORT
+      LAYER Metal5 ;
+        RECT 5.000 5.000 70.000 70.000 ;
+    END
+  END PAD
+  # Block Metal5 in the 5um frame around the pin so that no foreign M5
+  # wires cross the bondpad area.  Lower metals are deliberately left
+  # unobstructed to enable circuit-under-pad routing/placement.
+  OBS
+    LAYER Metal5 ;
+      RECT 0.000  0.000 75.000  5.000 ;
+      RECT 0.000 70.000 75.000 75.000 ;
+      RECT 0.000  5.000  5.000 70.000 ;
+      RECT 70.000 5.000 75.000 70.000 ;
+  END
+END gf180mcu_ws_io__area
+END LIBRARY

@@ -1,0 +1,32 @@
+library (gf180mcu_ws_io__area) {
+  delay_model : table_lookup;
+  time_unit : "1ns";
+  voltage_unit : "1V";
+  current_unit : "1mA";
+  pulling_resistance_unit : "1kohm";
+  capacitive_load_unit (1.0, pf);
+  leakage_power_unit : "1pW";
+
+  input_threshold_pct_fall : 50.0;
+  input_threshold_pct_rise : 50.0;
+  output_threshold_pct_fall : 50.0;
+  output_threshold_pct_rise : 50.0;
+  slew_lower_threshold_pct_fall : 20.0;
+  slew_lower_threshold_pct_rise : 20.0;
+  slew_upper_threshold_pct_fall : 80.0;
+  slew_upper_threshold_pct_rise : 80.0;
+
+  nom_voltage   : 3.30;
+  nom_temperature : 25.0;
+  nom_process     : 1.0;
+
+  /* Area IO pad: pure metal+passivation, no logic. */
+  cell (gf180mcu_ws_io__area) {
+    area : 5625.0;  /* 75um x 75um */
+    pad_cell : true;
+    pin (PAD) {
+      direction : inout;
+      is_pad : true;
+    }
+  }
+}

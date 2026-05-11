@@ -53,6 +53,7 @@ IGNORE_DISCONNECTED_MODULES:
 - gf180mcu_fd_io__bi_24t
 - gf180mcu_ws_ip__id
 - gf180mcu_ws_ip__logo
+- gf180mcu_ws_io__area
 
 # Clock
 CLOCK_PORT: clk_PAD
@@ -172,6 +173,72 @@ MACROS:
     instances:
       wafer_space_logo:
         location: ["expr::$DIE_AREA[2] + -169.25", "expr::$DIE_AREA[3] + -169.25"]
+        orientation: N
+
+  # Area IO pads — bare metal bondpads sitting inside the core for
+  # chip-on-chip wire-bonding.  No IO circuitry; Metal5-only pin so
+  # standard cells and lower-metal routing fit underneath.  Default
+  # layout is a 4x4 grid (NUM_AREA_PADS=16) at 150 um pitch, centered
+  # in the slot_1x1 core.  Adjust per-slot if a different slot uses a
+  # smaller core (the grid as-is fits all four current slots).
+  gf180mcu_ws_io__area:
+    gds:
+      - dir::../ip/gf180mcu_ws_io__area/gds/gf180mcu_ws_io__area.gds
+    lef:
+      - dir::../ip/gf180mcu_ws_io__area/lef/gf180mcu_ws_io__area.lef
+    vh:
+      - dir::../ip/gf180mcu_ws_io__area/vh/gf180mcu_ws_io__area.v
+    lib:
+      "*":
+        - dir::../ip/gf180mcu_ws_io__area/lib/gf180mcu_ws_io__area.lib
+    instances:
+      "area\\[0\\].pad":
+        location: [1703.5, 2298.5]
+        orientation: N
+      "area\\[1\\].pad":
+        location: [1853.5, 2298.5]
+        orientation: N
+      "area\\[2\\].pad":
+        location: [2003.5, 2298.5]
+        orientation: N
+      "area\\[3\\].pad":
+        location: [2153.5, 2298.5]
+        orientation: N
+      "area\\[4\\].pad":
+        location: [1703.5, 2448.5]
+        orientation: N
+      "area\\[5\\].pad":
+        location: [1853.5, 2448.5]
+        orientation: N
+      "area\\[6\\].pad":
+        location: [2003.5, 2448.5]
+        orientation: N
+      "area\\[7\\].pad":
+        location: [2153.5, 2448.5]
+        orientation: N
+      "area\\[8\\].pad":
+        location: [1703.5, 2598.5]
+        orientation: N
+      "area\\[9\\].pad":
+        location: [1853.5, 2598.5]
+        orientation: N
+      "area\\[10\\].pad":
+        location: [2003.5, 2598.5]
+        orientation: N
+      "area\\[11\\].pad":
+        location: [2153.5, 2598.5]
+        orientation: N
+      "area\\[12\\].pad":
+        location: [1703.5, 2748.5]
+        orientation: N
+      "area\\[13\\].pad":
+        location: [1853.5, 2748.5]
+        orientation: N
+      "area\\[14\\].pad":
+        location: [2003.5, 2748.5]
+        orientation: N
+      "area\\[15\\].pad":
+        location: [2153.5, 2748.5]
         orientation: N
 
   gf180mcu_fd_ip_sram__sram512x8m8wm1:

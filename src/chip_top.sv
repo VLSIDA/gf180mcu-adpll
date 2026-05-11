@@ -13,7 +13,10 @@ module chip_top #(
     // Signal pads
     parameter NUM_INPUT_PADS = `NUM_INPUT_PADS,
     parameter NUM_BIDIR_PADS = `NUM_BIDIR_PADS,
-    parameter NUM_ANALOG_PADS = `NUM_ANALOG_PADS
+    parameter NUM_ANALOG_PADS = `NUM_ANALOG_PADS,
+
+    // Area (chip-on-chip wire-bond) pads inside the core
+    parameter NUM_AREA_PADS = `NUM_AREA_PADS
     )(
     `ifdef USE_POWER_PINS
     inout  wire VDD,
@@ -22,11 +25,15 @@ module chip_top #(
 
     inout  wire clk_PAD,
     inout  wire rst_n_PAD,
-    
+
     inout  wire [NUM_INPUT_PADS-1:0] input_PAD,
     inout  wire [NUM_BIDIR_PADS-1:0] bidir_PAD,
-    
-    inout  wire [NUM_ANALOG_PADS-1:0] analog_PAD
+
+    inout  wire [NUM_ANALOG_PADS-1:0] analog_PAD,
+
+    // Area pads are wire-bond pads sitting inside the core.  They have
+    // no IO circuitry; the core sees them as a single inout wire each.
+    inout  wire [NUM_AREA_PADS-1:0]   area_PAD
 );
 
     wire clk_PAD2CORE;
@@ -165,21 +172,33 @@ module chip_top #(
     end
     endgenerate
 
+    // Area (chip-on-chip wire-bond) pads.  Pure metal+passivation, no
+    // IO circuitry.  Placed inside the core via librelane MACROS.
+    generate
+    for (genvar i=0; i<NUM_AREA_PADS; i++) begin : area
+        (* keep *)
+        gf180mcu_ws_io__area pad (
+            .PAD    (area_PAD[i])
+        );
+    end
+    endgenerate
+
     // Core design
 
     chip_core #(
         .NUM_INPUT_PADS  (NUM_INPUT_PADS),
         .NUM_BIDIR_PADS  (NUM_BIDIR_PADS),
-        .NUM_ANALOG_PADS (NUM_ANALOG_PADS)
+        .NUM_ANALOG_PADS (NUM_ANALOG_PADS),
+        .NUM_AREA_PADS   (NUM_AREA_PADS)
     ) i_chip_core (
         `ifdef USE_POWER_PINS
         .VDD        (VDD),
         .VSS        (VSS),
         `endif
-    
+
         .clk        (clk_PAD2CORE),
         .rst_n      (rst_n_PAD2CORE),
-    
+
         .input_in   (input_PAD2CORE),
         .input_pu   (input_CORE2PAD_PU),
         .input_pd   (input_CORE2PAD_PD),
@@ -192,8 +211,9 @@ module chip_top #(
         .bidir_ie   (bidir_CORE2PAD_IE),
         .bidir_pu   (bidir_CORE2PAD_PU),
         .bidir_pd   (bidir_CORE2PAD_PD),
-        
-        .analog     (analog_PAD)
+
+        .analog     (analog_PAD),
+        .area       (area_PAD)
     );
     
     // Chip ID - do not remove, necessary for tapeout

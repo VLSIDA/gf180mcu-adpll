@@ -9,6 +9,10 @@
 `define NUM_BIDIR_PADS 40
 `define NUM_ANALOG_PADS 2
 
+// Area (chip-on-chip wire-bond) pads, placed inside the core.
+// Default: 4x4 grid = 16 pads.
+`define NUM_AREA_PADS 16
+
 `endif
 
 `ifdef SLOT_0P5X1
@@ -21,6 +25,8 @@
 `define NUM_INPUT_PADS 4
 `define NUM_BIDIR_PADS 44
 `define NUM_ANALOG_PADS 6
+
+`define NUM_AREA_PADS 16
 
 `endif
 
@@ -35,6 +41,8 @@
 `define NUM_BIDIR_PADS 46
 `define NUM_ANALOG_PADS 4
 
+`define NUM_AREA_PADS 16
+
 `endif
 
 `ifdef SLOT_0P5X0P5
@@ -47,5 +55,7 @@
 `define NUM_INPUT_PADS 4
 `define NUM_BIDIR_PADS 38
 `define NUM_ANALOG_PADS 4
+
+`define NUM_AREA_PADS 16
 
 `endif
