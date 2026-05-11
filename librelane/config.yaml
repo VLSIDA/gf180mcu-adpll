@@ -178,9 +178,11 @@ MACROS:
   # Area IO pads — bare metal bondpads sitting inside the core for
   # chip-on-chip wire-bonding.  No IO circuitry; Metal5-only pin so
   # standard cells and lower-metal routing fit underneath.  Default
-  # layout is a 4x4 grid (NUM_AREA_PADS=16) at 150 um pitch, centered
-  # in the slot_1x1 core.  Adjust per-slot if a different slot uses a
-  # smaller core (the grid as-is fits all four current slots).
+  # layout is a 5x5 perimeter ring (NUM_AREA_PADS=16, donut with a
+  # hollow 3x3 = 9-cell center) at 150 um pitch, centered in the
+  # slot_1x1 core.  Pads are numbered clockwise starting at the
+  # bottom-left corner.  Adjust per-slot if a different slot uses a
+  # smaller core (the ring as-is fits all four current slots).
   gf180mcu_ws_io__area:
     gds:
       - dir::../ip/gf180mcu_ws_io__area/gds/gf180mcu_ws_io__area.gds
@@ -196,53 +198,66 @@ MACROS:
       # escaped: Odb.ManualMacroPlacement looks up instances by exact
       # name (the `\` in the synth netlist is Verilog escaped-identifier
       # syntax, not part of the OpenROAD instance name).
+      #
+      # 5x5 perimeter ring (clockwise, starting bottom-left):
+      #   x_LL ∈ {1628.5, 1778.5, 1928.5, 2078.5, 2228.5}
+      #   y_LL ∈ {2223.5, 2373.5, 2523.5, 2673.5, 2823.5}
+      # Center matches the previous 4x4 grid.
+
+      # Bottom row (left → right)
       "area[0].pad":
-        location: [1703.5, 2298.5]
+        location: [1628.5, 2223.5]
         orientation: N
       "area[1].pad":
-        location: [1853.5, 2298.5]
+        location: [1778.5, 2223.5]
         orientation: N
       "area[2].pad":
-        location: [2003.5, 2298.5]
+        location: [1928.5, 2223.5]
         orientation: N
       "area[3].pad":
-        location: [2153.5, 2298.5]
+        location: [2078.5, 2223.5]
         orientation: N
       "area[4].pad":
-        location: [1703.5, 2448.5]
+        location: [2228.5, 2223.5]
         orientation: N
+
+      # Right column (bottom → top, excluding corners)
       "area[5].pad":
-        location: [1853.5, 2448.5]
+        location: [2228.5, 2373.5]
         orientation: N
       "area[6].pad":
-        location: [2003.5, 2448.5]
+        location: [2228.5, 2523.5]
         orientation: N
       "area[7].pad":
-        location: [2153.5, 2448.5]
+        location: [2228.5, 2673.5]
         orientation: N
+
+      # Top row (right → left)
       "area[8].pad":
-        location: [1703.5, 2598.5]
+        location: [2228.5, 2823.5]
         orientation: N
       "area[9].pad":
-        location: [1853.5, 2598.5]
+        location: [2078.5, 2823.5]
         orientation: N
       "area[10].pad":
-        location: [2003.5, 2598.5]
+        location: [1928.5, 2823.5]
         orientation: N
       "area[11].pad":
-        location: [2153.5, 2598.5]
+        location: [1778.5, 2823.5]
         orientation: N
       "area[12].pad":
-        location: [1703.5, 2748.5]
+        location: [1628.5, 2823.5]
         orientation: N
+
+      # Left column (top → bottom, excluding corners)
       "area[13].pad":
-        location: [1853.5, 2748.5]
+        location: [1628.5, 2673.5]
         orientation: N
       "area[14].pad":
-        location: [2003.5, 2748.5]
+        location: [1628.5, 2523.5]
         orientation: N
       "area[15].pad":
-        location: [2153.5, 2748.5]
+        location: [1628.5, 2373.5]
         orientation: N
 
   gf180mcu_fd_ip_sram__sram512x8m8wm1:
