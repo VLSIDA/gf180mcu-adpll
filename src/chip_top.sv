@@ -29,12 +29,18 @@ module chip_top #(
     inout  wire [NUM_INPUT_PADS-1:0] input_PAD,
     inout  wire [NUM_BIDIR_PADS-1:0] bidir_PAD,
 
-    inout  wire [NUM_ANALOG_PADS-1:0] analog_PAD,
+    inout  wire [NUM_ANALOG_PADS-1:0] analog_PAD
+);
 
     // Area pads are wire-bond pads sitting inside the core.  They have
-    // no IO circuitry; the core sees them as a single inout wire each.
-    inout  wire [NUM_AREA_PADS-1:0]   area_PAD
-);
+    // no IO circuitry, and their bond-pad metal lives at a known M5
+    // location given by the librelane MACROS placement; that metal IS
+    // the external interface, so we deliberately do NOT expose a
+    // top-level port for them (OpenROAD has no way to place a
+    // die-boundary IO pin for a wire that physically terminates inside
+    // the core).  The wires below are purely internal — they connect
+    // each area-pad macro's M5 PAD pin to chip_core.area.
+    wire [NUM_AREA_PADS-1:0] area_PAD;
 
     wire clk_PAD2CORE;
     wire rst_n_PAD2CORE;

@@ -4,6 +4,9 @@
 """Generate the GDS for gf180mcu_ws_io__area.
 
 This emits a 75 x 75 um cell containing:
+  * a 75 x 75 um PR boundary              (GDS layer 0/0)
+    needed by LibreLane's KLayout/Magic streamout to extract the
+    macro outline.
   * a 65 x 65 um Metal5  bondpad         (GDS layer 81/0)
   * a 60 x 60 um Pad/glass opening        (GDS layer 37/0)
   * a "PAD" text label on Metal5/label    (GDS layer 81/10)
@@ -39,6 +42,7 @@ GLASS_INSET = 7.5   # glass inset from cell edge -> 60 x 60 um opening
 
 # GDS layer/datatype assignments (from gf180mcuD-GDS.tech /
 # klayout/tech/gf180mcu.lyp).
+LAYER_PRBOUNDARY   = (0, 0)   # convention matched by gf180mcu_ws_ip__id/__logo
 LAYER_METAL5       = (81, 0)
 LAYER_PAD          = (37, 0)
 LAYER_METAL5_LABEL = (81, 10)
@@ -51,9 +55,14 @@ def main(out_path: str) -> None:
 
     top = layout.create_cell(CELL_NAME)
 
+    prb = layout.layer(*LAYER_PRBOUNDARY)
     m5  = layout.layer(*LAYER_METAL5)
     pad = layout.layer(*LAYER_PAD)
     m5l = layout.layer(*LAYER_METAL5_LABEL)
+
+    # PR boundary covers the full cell footprint — LibreLane uses this
+    # to extract the macro outline during stream-out.
+    top.shapes(prb).insert(pya.DBox(0, 0, CELL_SIZE, CELL_SIZE))
 
     m5_box  = pya.DBox(METAL_INSET, METAL_INSET,
                        CELL_SIZE - METAL_INSET,

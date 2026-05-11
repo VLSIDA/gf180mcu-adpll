@@ -192,52 +192,56 @@ MACROS:
       "*":
         - dir::../ip/gf180mcu_ws_io__area/lib/gf180mcu_ws_io__area.lib
     instances:
-      "area\\[0\\].pad":
+      # Brackets in YAML keys must be quoted but should NOT be backslash-
+      # escaped: Odb.ManualMacroPlacement looks up instances by exact
+      # name (the `\` in the synth netlist is Verilog escaped-identifier
+      # syntax, not part of the OpenROAD instance name).
+      "area[0].pad":
         location: [1703.5, 2298.5]
         orientation: N
-      "area\\[1\\].pad":
+      "area[1].pad":
         location: [1853.5, 2298.5]
         orientation: N
-      "area\\[2\\].pad":
+      "area[2].pad":
         location: [2003.5, 2298.5]
         orientation: N
-      "area\\[3\\].pad":
+      "area[3].pad":
         location: [2153.5, 2298.5]
         orientation: N
-      "area\\[4\\].pad":
+      "area[4].pad":
         location: [1703.5, 2448.5]
         orientation: N
-      "area\\[5\\].pad":
+      "area[5].pad":
         location: [1853.5, 2448.5]
         orientation: N
-      "area\\[6\\].pad":
+      "area[6].pad":
         location: [2003.5, 2448.5]
         orientation: N
-      "area\\[7\\].pad":
+      "area[7].pad":
         location: [2153.5, 2448.5]
         orientation: N
-      "area\\[8\\].pad":
+      "area[8].pad":
         location: [1703.5, 2598.5]
         orientation: N
-      "area\\[9\\].pad":
+      "area[9].pad":
         location: [1853.5, 2598.5]
         orientation: N
-      "area\\[10\\].pad":
+      "area[10].pad":
         location: [2003.5, 2598.5]
         orientation: N
-      "area\\[11\\].pad":
+      "area[11].pad":
         location: [2153.5, 2598.5]
         orientation: N
-      "area\\[12\\].pad":
+      "area[12].pad":
         location: [1703.5, 2748.5]
         orientation: N
-      "area\\[13\\].pad":
+      "area[13].pad":
         location: [1853.5, 2748.5]
         orientation: N
-      "area\\[14\\].pad":
+      "area[14].pad":
         location: [2003.5, 2748.5]
         orientation: N
-      "area\\[15\\].pad":
+      "area[15].pad":
         location: [2153.5, 2748.5]
         orientation: N
 
