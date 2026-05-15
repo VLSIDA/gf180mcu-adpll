@@ -175,6 +175,27 @@ MACROS:
         location: ["expr::$DIE_AREA[2] + -169.25", "expr::$DIE_AREA[3] + -169.25"]
         orientation: N
 
+  gf180mcu_ocd_ip_sram__sram256x8m8wm1:
+    gds:
+      - dir::../libs/gf180mcu_ocd_ip_sram/cells/gf180mcu_ocd_ip_sram__sram256x8m8wm1/gf180mcu_ocd_ip_sram__sram256x8m8wm1.gds
+    lef:
+      - dir::../libs/gf180mcu_ocd_ip_sram/cells/gf180mcu_ocd_ip_sram__sram256x8m8wm1/gf180mcu_ocd_ip_sram__sram256x8m8wm1.lef
+    vh:
+      - dir::../libs/gf180mcu_ocd_ip_sram/cells/gf180mcu_ocd_ip_sram__sram256x8m8wm1/gf180mcu_ocd_ip_sram__sram256x8m8wm1.blackbox.v
+    lib:
+      "*_tt_025C_3v30":
+        - dir::../libs/gf180mcu_ocd_ip_sram/cells/gf180mcu_ocd_ip_sram__sram256x8m8wm1/gf180mcu_ocd_ip_sram__sram256x8m8wm1__tt_025C_3v30.lib
+      "*_ff_n40C_3v60":
+        - dir::../libs/gf180mcu_ocd_ip_sram/cells/gf180mcu_ocd_ip_sram__sram256x8m8wm1/gf180mcu_ocd_ip_sram__sram256x8m8wm1__ff_n40C_3v60.lib
+    instances:
+      # Make sure to specify the SRAMs in pdn_cfg.tcl
+      i_chip_core.sram_v_256:
+        location: [490, 500]
+        orientation: N
+      i_chip_core.sram_r_256:
+        location: [490, 1500]
+        orientation: E
+
   gf180mcu_ocd_ip_sram__sram512x8m8wm1:
     gds:
       - dir::../libs/gf180mcu_ocd_ip_sram/cells/gf180mcu_ocd_ip_sram__sram512x8m8wm1/gf180mcu_ocd_ip_sram__sram512x8m8wm1.gds
@@ -189,18 +210,43 @@ MACROS:
         - dir::../libs/gf180mcu_ocd_ip_sram/cells/gf180mcu_ocd_ip_sram__sram512x8m8wm1/gf180mcu_ocd_ip_sram__sram512x8m8wm1__ff_n40C_3v60.lib
     instances:
       # Make sure to specify the SRAMs in pdn_cfg.tcl
-      i_chip_core.sram_0:
-        location: [490, 500]
+      i_chip_core.sram_v_512:
+        location: [990, 500]
         orientation: N
-      i_chip_core.sram_1:
-        location: [970, 500]
+      i_chip_core.sram_r_512:
+        location: [990, 1500]
+        orientation: E
+
+  gf180mcu_ocd_ip_sram__sram1024x8m8wm1:
+    gds:
+      - dir::../libs/gf180mcu_ocd_ip_sram/cells/gf180mcu_ocd_ip_sram__sram1024x8m8wm1/gf180mcu_ocd_ip_sram__sram1024x8m8wm1.gds
+    lef:
+      - dir::../libs/gf180mcu_ocd_ip_sram/cells/gf180mcu_ocd_ip_sram__sram1024x8m8wm1/gf180mcu_ocd_ip_sram__sram1024x8m8wm1.lef
+    vh:
+      - dir::../libs/gf180mcu_ocd_ip_sram/cells/gf180mcu_ocd_ip_sram__sram1024x8m8wm1/gf180mcu_ocd_ip_sram__sram1024x8m8wm1.blackbox.v
+    lib:
+      "*_tt_025C_3v30":
+        - dir::../libs/gf180mcu_ocd_ip_sram/cells/gf180mcu_ocd_ip_sram__sram1024x8m8wm1/gf180mcu_ocd_ip_sram__sram1024x8m8wm1__tt_025C_3v30.lib
+      "*_ff_n40C_3v60":
+        - dir::../libs/gf180mcu_ocd_ip_sram/cells/gf180mcu_ocd_ip_sram__sram1024x8m8wm1/gf180mcu_ocd_ip_sram__sram1024x8m8wm1__ff_n40C_3v60.lib
+    instances:
+      # Make sure to specify the SRAMs in pdn_cfg.tcl
+      i_chip_core.sram_v_1024:
+        location: [1490, 500]
+        orientation: N
+      i_chip_core.sram_r_1024:
+        location: [1490, 1500]
         orientation: E
 
 # This is an alternative method compared to
 # specifying the power connections in the RTL
 PDN_MACRO_CONNECTIONS:
-- "i_chip_core.sram_0 VDD VSS VDD VSS"
-- "i_chip_core.sram_1 VDD VSS VDD VSS"
+- "i_chip_core.sram_v_256 VDD VSS VDD VSS"
+- "i_chip_core.sram_v_512 VDD VSS VDD VSS"
+- "i_chip_core.sram_v_1024 VDD VSS VDD VSS"
+- "i_chip_core.sram_r_256 VDD VSS VDD VSS"
+- "i_chip_core.sram_r_512 VDD VSS VDD VSS"
+- "i_chip_core.sram_r_1024 VDD VSS VDD VSS"
 
 # Halo size around macros while cutting rows.
 # Workaround for: https://github.com/The-OpenROAD-Project/OpenROAD/issues/8868

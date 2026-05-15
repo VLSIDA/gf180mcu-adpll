@@ -61,41 +61,124 @@ module chip_core #(
         end
     end
 
-    logic [7:0] sram_0_out;
+    logic [7:0] sram_v_256_out;
+    logic [7:0] sram_v_512_out;
+    logic [7:0] sram_v_1024_out;
+    logic [7:0] sram_r_256_out;
+    logic [7:0] sram_r_512_out;
+    logic [7:0] sram_r_1024_out;
 
-    gf180mcu_ocd_ip_sram__sram512x8m8wm1 sram_0 (
+    // Shared SRAM control - driven by counter so signals toggle in simulation
+    // and the SRAMs are not optimized away.
+    logic        sram_cen;
+    logic        sram_gwen;
+    logic [7:0]  sram_wen;
+    logic [9:0]  sram_addr;
+    logic [7:0]  sram_din;
+
+    assign sram_cen  = ~count[0];
+    assign sram_gwen = count[1];
+    assign sram_wen  = {8{count[2]}};
+    assign sram_addr = count[9:0];
+    assign sram_din  = count[7:0];
+
+    // Vertical (N) orientation
+    gf180mcu_ocd_ip_sram__sram256x8m8wm1 sram_v_256 (
         `ifdef USE_POWER_PINS
         .VDD  (VDD),
         .VSS  (VSS),
         `endif
 
         .CLK  (clk),
-        .CEN  (1'b1),
-        .GWEN (1'b0),
-        .WEN  (8'b0),
-        .A    ('0),
-        .D    ('0),
-        .Q    (sram_0_out)
+        .CEN  (sram_cen),
+        .GWEN (sram_gwen),
+        .WEN  (sram_wen),
+        .A    (sram_addr[7:0]),
+        .D    (sram_din),
+        .Q    (sram_v_256_out)
     );
 
-    logic [7:0] sram_1_out;
-
-    gf180mcu_ocd_ip_sram__sram512x8m8wm1 sram_1 (
+    gf180mcu_ocd_ip_sram__sram512x8m8wm1 sram_v_512 (
         `ifdef USE_POWER_PINS
         .VDD  (VDD),
         .VSS  (VSS),
         `endif
 
         .CLK  (clk),
-        .CEN  (1'b1),
-        .GWEN (1'b0),
-        .WEN  (8'b0),
-        .A    ('0),
-        .D    ('0),
-        .Q    (sram_1_out)
+        .CEN  (sram_cen),
+        .GWEN (sram_gwen),
+        .WEN  (sram_wen),
+        .A    (sram_addr[8:0]),
+        .D    (sram_din),
+        .Q    (sram_v_512_out)
     );
 
-    assign bidir_out = count ^ {24'd0, sram_0_out, sram_1_out};
+    gf180mcu_ocd_ip_sram__sram1024x8m8wm1 sram_v_1024 (
+        `ifdef USE_POWER_PINS
+        .VDD  (VDD),
+        .VSS  (VSS),
+        `endif
+
+        .CLK  (clk),
+        .CEN  (sram_cen),
+        .GWEN (sram_gwen),
+        .WEN  (sram_wen),
+        .A    (sram_addr),
+        .D    (sram_din),
+        .Q    (sram_v_1024_out)
+    );
+
+    // Rotated (E) orientation
+    gf180mcu_ocd_ip_sram__sram256x8m8wm1 sram_r_256 (
+        `ifdef USE_POWER_PINS
+        .VDD  (VDD),
+        .VSS  (VSS),
+        `endif
+
+        .CLK  (clk),
+        .CEN  (sram_cen),
+        .GWEN (sram_gwen),
+        .WEN  (sram_wen),
+        .A    (sram_addr[7:0]),
+        .D    (sram_din),
+        .Q    (sram_r_256_out)
+    );
+
+    gf180mcu_ocd_ip_sram__sram512x8m8wm1 sram_r_512 (
+        `ifdef USE_POWER_PINS
+        .VDD  (VDD),
+        .VSS  (VSS),
+        `endif
+
+        .CLK  (clk),
+        .CEN  (sram_cen),
+        .GWEN (sram_gwen),
+        .WEN  (sram_wen),
+        .A    (sram_addr[8:0]),
+        .D    (sram_din),
+        .Q    (sram_r_512_out)
+    );
+
+    gf180mcu_ocd_ip_sram__sram1024x8m8wm1 sram_r_1024 (
+        `ifdef USE_POWER_PINS
+        .VDD  (VDD),
+        .VSS  (VSS),
+        `endif
+
+        .CLK  (clk),
+        .CEN  (sram_cen),
+        .GWEN (sram_gwen),
+        .WEN  (sram_wen),
+        .A    (sram_addr),
+        .D    (sram_din),
+        .Q    (sram_r_1024_out)
+    );
+
+    logic [7:0] sram_xor;
+    assign sram_xor = sram_v_256_out ^ sram_v_512_out ^ sram_v_1024_out
+                    ^ sram_r_256_out ^ sram_r_512_out ^ sram_r_1024_out;
+
+    assign bidir_out = count ^ {{(NUM_BIDIR_PADS-8){1'b0}}, sram_xor};
 
 endmodule
 
