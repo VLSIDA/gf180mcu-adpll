@@ -54,6 +54,27 @@ IGNORE_DISCONNECTED_MODULES:
 - gf180mcu_ws_ip__id
 - gf180mcu_ws_ip__logo
 
+# Skip every fill / tap / decap cell from the 3.3V SCL and IO libraries
+# during LVS. The 3.3V flow inserts hundreds of thousands of fillcap_16
+# / tap_2 cells; netgen's partition refinement does not converge in
+# reasonable time at that scale. These cells connect only to power /
+# ground rails, so dropping them does not affect LVS coverage.
+LVS_IGNORE_CELLS:
+# 3.3V standard-cell library
+- gf180mcu_as_sc_mcu7t3v3__fill_1
+- gf180mcu_as_sc_mcu7t3v3__fill_2
+- gf180mcu_as_sc_mcu7t3v3__fill_4
+- gf180mcu_as_sc_mcu7t3v3__fill_8
+- gf180mcu_as_sc_mcu7t3v3__fillcap_4
+- gf180mcu_as_sc_mcu7t3v3__fillcap_8
+- gf180mcu_as_sc_mcu7t3v3__fillcap_16
+- gf180mcu_as_sc_mcu7t3v3__tap_2
+# IO library fill cells
+- gf180mcu_fd_io__fill1
+- gf180mcu_fd_io__fill5
+- gf180mcu_fd_io__fill10
+- gf180mcu_fd_io__fillnc
+
 # Clock
 CLOCK_PORT: clk_PAD
 CLOCK_NET: clk_pad/Y
